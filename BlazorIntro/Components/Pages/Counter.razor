@@ -1,4 +1,4 @@
-﻿@page "/counter"
+﻿@page "/counter/{initialCount:int?}"
 @rendermode InteractiveServer
 
 <PageTitle>Counter</PageTitle>
@@ -6,13 +6,23 @@
 <h1>Counter</h1>
 
 <p role="status">Current count: @currentCount</p>
+<p>Initial Count: @InitialCount</p>
 
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<button class="btn btn-primary" @onclick="IncrementCountAsync">Click me</button>
+
+<MyButton OnClick="IncrementCount" class="btn btn-success">Click Fidel</MyButton>
 
 @if (currentCount > 7)
 {
-    <p>you lose!!!!</p>
+    <p>Hope is playing with fire!!!!</p>
 }
+
+<div>
+    <input @bind="text" @bind:event="oninput" @bind:after="Search"/>
+    <button @onclick="OnClick">Clear</button>
+    <p>@text</p>
+    <p>@searchResult</p>
+</div>
 
 <ul>
     @for (int i = 4; i < currentCount; i++)
@@ -23,6 +33,16 @@
 
 @code {
     private int currentCount = 5;
+    string text = "";
+    string searchResult = "";
+
+    protected override void OnInitialized()
+    {
+        currentCount = InitialCount;
+    }
+
+    [Parameter]
+    public int InitialCount { get; set; }
 
     [Parameter]
     public int IncrementAmount { get; set; } = 2;
@@ -30,5 +50,28 @@
     private void IncrementCount()
     {
         currentCount+= IncrementAmount;
+    }
+
+    async Task IncrementCountAsync()
+    {
+        await Task.Delay(1000);
+        currentCount++;
+    }
+
+    private void MyOnInput(ChangeEventArgs args)
+    {
+        text = (string)args.Value!;
+    }
+
+    private void OnClick(Microsoft.AspNetCore.Components.Web.MouseEventArgs args)
+    {
+        text = "";
+    }
+
+    async Task Search()
+    {
+        searchResult = "Searching...";
+        await Task.Delay(1000);
+        searchResult = $"Found {Random.Shared.Next()}";
     }
 }
